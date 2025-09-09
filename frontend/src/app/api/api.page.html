@@ -1,0 +1,210 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>API Testing Interface</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="api-container">
+    <!-- Wallet Status -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Wallet Authentication</ion-card-title>
+        <ion-card-subtitle>Manage wallet connection for API calls</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="wallet-status">
+          <ion-chip [color]="walletStatus.isConnected ? 'success' : 'warning'">
+            <ion-icon [name]="walletStatus.isConnected ? 'checkmark-circle' : 'warning'"></ion-icon>
+            <ion-label>{{ walletStatus.isConnected ? 'Connected' : 'Not Connected' }}</ion-label>
+          </ion-chip>
+          <p *ngIf="walletStatus.isConnected" class="wallet-id">
+            Wallet ID: <strong>{{ walletStatus.walletId }}</strong>
+          </p>
+          <p *ngIf="!walletStatus.isConnected" class="wallet-warning">
+            API calls will be made without wallet authentication
+          </p>
+        </div>
+
+        <div class="wallet-controls">
+          <ion-item>
+            <ion-input
+              [(ngModel)]="walletIdInput"
+              placeholder="Enter wallet ID (e.g., 0.0.123456)"
+              type="text">
+            </ion-input>
+            <ion-button
+              fill="outline"
+              slot="end"
+              (click)="setWalletId()"
+              [disabled]="!walletIdInput.trim()">
+              Set Wallet
+            </ion-button>
+          </ion-item>
+          <ion-button
+            *ngIf="walletStatus.isConnected"
+            fill="clear"
+            color="danger"
+            (click)="clearWalletId()"
+            class="clear-wallet-btn">
+            <ion-icon name="close-circle" slot="start"></ion-icon>
+            Clear Wallet
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Module Selection -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Select Module</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-segment [(ngModel)]="selectedModule" (ionChange)="selectModule($event.detail.value)">
+          <ion-segment-button *ngFor="let module of Object.keys(endpoints)" [value]="module">
+            <ion-label>{{ module }}</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Endpoints List -->
+    <ion-card *ngIf="selectedModule">
+      <ion-card-header>
+        <ion-card-title>{{ selectedModule }} Endpoints</ion-card-title>
+        <ion-card-subtitle>{{ endpoints[selectedModule].length }} endpoints available</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item
+            *ngFor="let endpoint of endpoints[selectedModule]"
+            button
+            (click)="selectEndpoint(endpoint)"
+            [class.selected]="selectedEndpoint === endpoint">
+            <ion-label>
+              <h2>
+                <ion-chip [color]="getMethodColor(endpoint.method)">
+                  {{ endpoint.method }}
+                </ion-chip>
+                {{ endpoint.path }}
+              </h2>
+              <p>{{ endpoint.description }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Endpoint Details and Testing -->
+    <ion-card *ngIf="selectedEndpoint">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-chip [color]="getMethodColor(selectedEndpoint.method)">
+            {{ selectedEndpoint.method }}
+          </ion-chip>
+          {{ selectedEndpoint.path }}
+        </ion-card-title>
+        <ion-card-subtitle>{{ selectedEndpoint.description }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <!-- Request Body -->
+        <div *ngIf="selectedEndpoint.body" class="request-section">
+          <h3>Request Body</h3>
+          <ion-item>
+            <ion-label>
+              <pre>{{ formatJson(selectedEndpoint.body) }}</pre>
+            </ion-label>
+            <ion-button
+              fill="clear"
+              size="small"
+              (click)="copyToClipboard(formatJson(selectedEndpoint.body))">
+              <ion-icon name="copy-outline"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </div>
+
+        <!-- Parameters -->
+        <div *ngIf="selectedEndpoint.parameters" class="request-section">
+          <h3>Parameters</h3>
+          <ion-item>
+            <ion-label>
+              <pre>{{ formatJson(selectedEndpoint.parameters) }}</pre>
+            </ion-label>
+            <ion-button
+              fill="clear"
+              size="small"
+              (click)="copyToClipboard(formatJson(selectedEndpoint.parameters))">
+              <ion-icon name="copy-outline"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </div>
+
+        <!-- Call Button -->
+        <ion-button
+          expand="block"
+          (click)="callEndpoint()"
+          [disabled]="loading"
+          class="call-button">
+          <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+          <ion-icon *ngIf="!loading" name="play-outline"></ion-icon>
+          {{ loading ? 'Calling...' : 'Call Endpoint' }}
+        </ion-button>
+
+        <!-- Response -->
+        <div *ngIf="response" class="response-section">
+          <h3>Response</h3>
+          <ion-item>
+            <ion-label>
+              <pre>{{ formatJson(response) }}</pre>
+            </ion-label>
+            <ion-button
+              fill="clear"
+              size="small"
+              (click)="copyToClipboard(formatJson(response))">
+              <ion-icon name="copy-outline"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="error" class="error-section">
+          <h3>Error</h3>
+          <ion-item color="danger">
+            <ion-label>
+              <pre>{{ error }}</pre>
+            </ion-label>
+            <ion-button
+              fill="clear"
+              size="small"
+              (click)="copyToClipboard(error)">
+              <ion-icon name="copy-outline"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Quick Stats -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>API Overview</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6" *ngFor="let module of Object.keys(endpoints)">
+              <div class="stat-item">
+                <h3>{{ endpoints[module].length }}</h3>
+                <p>{{ module }}</p>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        <div class="total-stats">
+          <h2>{{ getTotalEndpoints() }}</h2>
+          <p>Total Endpoints</p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

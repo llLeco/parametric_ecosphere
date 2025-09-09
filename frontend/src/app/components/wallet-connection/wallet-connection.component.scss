@@ -1,0 +1,11 @@
+.connect-wallet-btn, .connected-wallet-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background-color: var(--ion-color-primary);
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+}

@@ -1,0 +1,43 @@
+ion-content {
+  --background: linear-gradient(
+    180deg,
+    rgba(128, 90, 213, 0.08),
+    transparent 40%
+  ) no-repeat,
+  var(--ion-background-color);
+}
+
+h1 {
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+p {
+  color: var(--ion-color-medium);
+  margin-bottom: 20px;
+}
+
+.wallet-card {
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, var(--ion-color-primary-tint), var(--ion-color-primary-shade));
+  color: white;
+
+  ion-card-header {
+    text-align: center;
+
+    ion-card-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      ion-icon {
+        font-size: 1.4rem;
+        color: #fff;
+      }
+    }
+  }
+}
