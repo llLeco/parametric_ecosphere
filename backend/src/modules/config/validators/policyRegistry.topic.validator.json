@@ -1,0 +1,24 @@
+{
+  "smartNodeSecurity": "partial",
+  "actionsConditions": { "values": ["message"], "controller": "owner" },
+  "updateConditions":  { "values": ["memo"],    "controller": "owner" },
+  "tokenGates": {
+    "fungibles":    { "tokens": ["0.0.TOKEN_ADMIN"] },
+    "nonFungibles": { "tokens": ["0.0.NFT_ADMIN"] },
+    "timeRange":    { "from": 0, "to": 0 }
+  },
+  "customInterface": {
+    "interfaceName": "insurance.registry",
+    "properties": {
+      "policyId": "string",
+      "beneficiary": "string",
+      "location": "string",
+      "sumInsured": "number",
+      "premium": "number",
+      "retention": "number",
+      "validity": { "from": "string", "to": "string" },
+      "ruleRef": { "topicId": "string", "ts": "string" },
+      "payoutsTopicId": "string"
+    }
+  }
+}

@@ -11,8 +11,16 @@ const routes: Routes = [
     loadChildren: () => import('./api/api.module').then( m => m.ApiModule)
   },
   {
+    path: 'flow',
+    loadChildren: () => import('./pages/flow-runner/flow-runner.module').then(m => m.FlowRunnerPageModule)
+  },
+  {
+    path: 'settings',
+    loadChildren: () => import('./pages/settings/settings.module').then(m => m.SettingsPageModule)
+  },
+  {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'flow',
     pathMatch: 'full'
   },
 ];

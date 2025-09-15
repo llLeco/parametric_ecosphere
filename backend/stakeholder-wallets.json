@@ -1,0 +1,75 @@
+{
+  "generatedAt": "2025-09-10T15:32:59.753Z",
+  "network": "Hedera Testnet",
+  "smartAppAccount": "0.0.5173509",
+  "totalWallets": 5,
+  "wallets": [
+    {
+      "role": "Oracle",
+      "description": "Signs trigger events (weather data) and publishes TriggerEvent with SmartNodes",
+      "accountId": "0.0.6801945",
+      "publicKey": "302a300506032b65700321009a80143213a7141d2a6f65d8f9610bf9ff8421999439afcea7d7c77eac142dca",
+      "initialBalance": "10",
+      "permissions": [
+        "trigger.sign",
+        "data.publish",
+        "consensus.participate"
+      ],
+      "privateKey": "302e020100300506032b6570042204207800cf0dfef996d328c4eccddc110185488edfe7c00e9c4d83e2f4dbcd3ea6b5"
+    },
+    {
+      "role": "Beneficiary (Farmer)",
+      "description": "Receives PayoutExecuted in pool token and pays Premium to pool",
+      "accountId": "0.0.6801946",
+      "publicKey": "302a300506032b6570032100846ddeaddfb775e5a7c3630b620c7a0421b4fd7282b0887080ae515e451f83ae",
+      "initialBalance": "10",
+      "permissions": [
+        "payout.receive",
+        "premium.pay",
+        "policy.claim"
+      ],
+      "privateKey": "302e020100300506032b6570042204200bcdd76b2661463fa13706b488523d043cb21a269f0796279e77046a2851b325"
+    },
+    {
+      "role": "Contributor (Liquidity Provider)",
+      "description": "Makes Deposit to pool and receives PoolToken (if modeled)",
+      "accountId": "0.0.6801948",
+      "publicKey": "302a300506032b6570032100761d9f30d70923b0e3a6290faf6e2b57d3e9be2c0c697f97c40c12b49f10f348",
+      "initialBalance": "10",
+      "permissions": [
+        "pool.deposit",
+        "liquidity.provide",
+        "token.receive"
+      ],
+      "privateKey": "302e020100300506032b65700422042075168bfdfc809a714e5a45a6d0d1f0c91d14d0a139798b425584e0edf9f02068"
+    },
+    {
+      "role": "Reinsurer",
+      "description": "Handles CessionRequested and signs CessionFunded when providing extra funding",
+      "accountId": "0.0.6801949",
+      "publicKey": "302a300506032b6570032100df6b3b4c24b0dbc56695228108ef221e3fd3953944b6caec6e776713cdd04d41",
+      "initialBalance": "10",
+      "permissions": [
+        "cession.handle",
+        "cession.fund",
+        "risk.transfer"
+      ],
+      "privateKey": "302e020100300506032b65700422042014176151adc1b65252f0c86cdcf31ddb8d8c9a1a19324bc411f0708fd42de6d2"
+    },
+    {
+      "role": "SmartApp (Admin)",
+      "description": "Manages policy registry, writes to registry/pool-events/payouts/policy-status, and requests cession. Operates the system.",
+      "accountId": "0.0.5173509",
+      "publicKey": "302a300506032b6570032100f8d9de606d07599763b3db9ce6bab780126fdabeec0811ec9a2d8c441c9e315a",
+      "initialBalance": "1000",
+      "permissions": [
+        "admin.manage",
+        "policy.register",
+        "pool.manage",
+        "cession.request",
+        "system.operate"
+      ],
+      "privateKey": "60062c82f2f6028f7af995ac4642b86e5e9c83f7e9a0b0afdc6bab95486d4b1c"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "smartNodeSecurity": "partial",
+  "actionsConditions": { "values": ["message"], "controller": "owner" },
+  "updateConditions":  { "values": ["memo"],    "controller": "owner" },
+  "tokenGates": {
+    "fungibles":    { "tokens": ["0.0.TOKEN_ORACLE", "0.0.TOKEN_SMARTNODE"] },
+    "nonFungibles": { "tokens": ["0.0.NFT_ORACLE", "0.0.NFT_VALIDATOR"] },
+    "timeRange":    { "from": 0, "to": 0 }
+  },
+  "customInterface": {
+    "interfaceName": "insurance.triggers",
+    "properties": {
+      "type": "string",
+      "policyId": "string",
+      "location": "string",
+      "index": "object",
+      "window": { "from": "string", "to": "string" },
+      "ruleRef": { "topicId": "string", "ts": "string" },
+      "oracleSig": "string",
+      "smartNodeSig": "string"
+    }
+  }
+}

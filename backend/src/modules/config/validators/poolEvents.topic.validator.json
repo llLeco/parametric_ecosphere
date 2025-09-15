@@ -1,0 +1,26 @@
+{
+  "smartNodeSecurity": "partial",
+  "actionsConditions": { "values": ["message"], "controller": "owner" },
+  "updateConditions":  { "values": ["memo"],    "controller": "owner" },
+  "tokenGates": {
+    "fungibles":    { "tokens": ["0.0.TOKEN_ADMIN", "0.0.TOKEN_CONTRIBUTOR"] },
+    "nonFungibles": { "tokens": ["0.0.NFT_POOL_MEMBER"] },
+    "timeRange":    { "from": 0, "to": 0 }
+  },
+  "customInterface": {
+    "interfaceName": "insurance.pool",
+    "properties": {
+      "type": "string",
+      "poolId": "string",
+      "policyId": "string",
+      "from": "string",
+      "amount": "number",
+      "currencyTokenId": "string",
+      "balances": { "before": "number", "after": "number" },
+      "beneficiary": "string",
+      "ref": "object",
+      "txId": "string",
+      "tsLocal": "number"
+    }
+  }
+}

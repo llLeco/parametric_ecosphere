@@ -1,0 +1,27 @@
+{
+  "smartNodeSecurity": "full",
+  "actionsConditions": { "values": ["message"], "controller": "owner" },
+  "updateConditions":  { "values": ["memo"],    "controller": "owner" },
+  "tokenGates": {
+    "fungibles":    { "tokens": ["0.0.TOKEN_SMARTNODE"] },
+    "nonFungibles": { "tokens": ["0.0.NFT_VALIDATOR"] },
+    "timeRange":    { "from": 0, "to": 0 }
+  },
+  "customInterface": {
+    "interfaceName": "insurance.rules",
+    "properties": {
+      "type": "string",
+      "ruleId": "string",
+      "version": "number",
+      "policyScope": { "policyId": "string", "hexId": "string" },
+      "indexDef": {
+        "metric": "string",
+        "operator": "string",
+        "threshold": "number",
+        "windowDays": "number"
+      },
+      "payout": { "amount": "number", "currencyTokenId": "string" },
+      "validity": { "from": "string", "to": "string" }
+    }
+  }
+}

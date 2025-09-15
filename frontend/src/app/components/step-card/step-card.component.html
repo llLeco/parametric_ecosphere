@@ -1,0 +1,48 @@
+<ion-card>
+  <ion-card-header>
+    <ion-card-title>{{ title }}</ion-card-title>
+    <ion-note>{{ method }} {{ path }} — role: {{ role }}</ion-note>
+  </ion-card-header>
+  <ion-card-content>
+    <ion-textarea
+      autoGrow="true"
+      [value]="editorValue"
+      (ionInput)="editorValue = $any($event.target).value"
+      placeholder="{ }"
+      rows="8"
+    ></ion-textarea>
+
+    <div class="actions">
+      <ion-button color="primary" [disabled]="running" (click)="onExecute()">
+        <ion-spinner *ngIf="running" name="dots"></ion-spinner>
+        <span *ngIf="!running">Executar</span>
+      </ion-button>
+    </div>
+
+    <div *ngIf="result">
+      <ion-item lines="none">
+        <ion-label>Consensus TS</ion-label>
+        <ion-badge color="success">{{ result.consensusTimestamp || result.response?.consensusTimestamp }}</ion-badge>
+      </ion-item>
+
+      <ion-item lines="full">
+        <ion-label>Request</ion-label>
+        <ion-button fill="clear" size="small" (click)="copy(curl)">Copy cURL</ion-button>
+      </ion-item>
+      <pre>{{ stringify(result.request) }}</pre>
+
+      <ion-item lines="full">
+        <ion-label>Response</ion-label>
+        <ion-button fill="clear" size="small" (click)="copy(stringify(result.response))">Copy</ion-button>
+      </ion-item>
+      <pre>{{ stringify(result.response) }}</pre>
+
+      <ion-item *ngIf="result.error" color="danger">
+        <ion-label>Error</ion-label>
+      </ion-item>
+      <pre *ngIf="result.error">{{ stringify(result.error) }}</pre>
+    </div>
+  </ion-card-content>
+</ion-card>
+
+

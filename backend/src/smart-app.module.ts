@@ -6,6 +6,7 @@ import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { BullModule } from '@nestjs/bull';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -35,18 +36,15 @@ import subscription from '../config/modules/subscription';
 import { SubscriptionsModule } from '@hsuite/subscriptions';
 import { ISubscription } from '@hsuite/subscriptions-types';
 
-// Import showcase modules
-import { TopicsModule } from './modules/topics/topics.module';
-import { AccountsModule } from './modules/accounts/accounts.module';
-import { TokensModule } from './modules/tokens/tokens.module';
 
-// Import parametric insurance modules
-import { PolicyWorkflowModule } from './modules/policy-workflow/policy-workflow.module';
-import { OracleCommitteeModule } from './modules/oracle-committee/oracle-committee.module';
-import { RiskPoolModule } from './modules/risk-pool/risk-pool.module';
-import { AutomatedPayoutModule } from './modules/automated-payout/automated-payout.module';
-import { ReinsuranceModule } from './modules/reinsurance/reinsurance.module';
-import { SolvencyAuditModule } from './modules/solvency-audit/solvency-audit.module';
+import { RegistryModule } from './modules/registry/registry.module';
+import { RulesModule } from './modules/rules/rules.module';
+import { TriggersModule } from './modules/triggers/triggers.module';
+import { PolicyStatusModule } from './modules/policy-status/policy-status.module';
+import { PoolEventsModule } from './modules/pool-events/pool-events.module';
+import { CessionModule } from './modules/cession/cession.module';
+import { PayoutsModule } from './modules/payouts/payouts.module';
+import { PolicyFactoryModule } from './modules/policy-factory/policy-factory.module';
 
 /**
  * @class SmartAppModule
@@ -181,6 +179,30 @@ export class SmartAppModule {
     return {
       module: SmartAppModule,
       imports: [
+        /**
+         * Bull (queue) configuration for background jobs
+         */
+        BullModule.forRootAsync({
+          imports: [ConfigModule],
+          inject: [ConfigService],
+          useFactory: async (configService: ConfigService) => {
+            const redis = configService.getOrThrow<any>('redis');
+            const host = redis?.socket?.host || process.env.REDIS_URL;
+            const port = redis?.socket?.port || Number(process.env.REDIS_PORT || 6379);
+            const password = redis?.password || process.env.REDIS_PASSWORD;
+            const db = typeof redis?.database === 'number' ? redis.database : Number(process.env.REDIS_DATABASE || 0);
+            const username = redis?.username || process.env.REDIS_USERNAME || 'default';
+            return {
+              redis: {
+                host,
+                port,
+                password,
+                db,
+                username
+              }
+            };
+          }
+        }),
         // Smart Node - Core Modules
         /**
          * IPFS Module for decentralized storage capabilities
@@ -297,31 +319,19 @@ export class SmartAppModule {
             })
           })] : []
         ),      
-        /**
-         * Showcase modules for demonstrating Smart Node SDK functionality:
-         * - TopicsModule: Demonstrates Hedera Consensus Service (HCS) operations
-         * - AccountsModule: Demonstrates Hedera account operations
-         * - TokensModule: Demonstrates Hedera Token Service (HTS) operations
-         */
-        TopicsModule,
-        AccountsModule,
-        TokensModule,
+  
+     
         
-        /**
-         * Parametric Insurance Ecosystem modules:
-         * - PolicyWorkflowModule: Core policy workflow engine for parametric insurance
-         * - OracleCommitteeModule: Sensor/Oracle committee for trigger attestation
-         * - RiskPoolModule: Risk pool management for premiums and liquidity
-         * - AutomatedPayoutModule: Automated payout system with HTS integration
-         * - ReinsuranceModule: Reinsurance and cession management for risk transfer
-         * - SolvencyAuditModule: Real-time solvency testing and immutable audit trails
-         */
-        PolicyWorkflowModule,
-        OracleCommitteeModule,
-        RiskPoolModule,
-        AutomatedPayoutModule,
-        ReinsuranceModule,
-        SolvencyAuditModule
+ 
+    
+        RegistryModule,
+        RulesModule,
+        TriggersModule,
+        PolicyStatusModule,
+        PoolEventsModule,
+        CessionModule,
+        PayoutsModule,
+        PolicyFactoryModule
       ],
       providers: []
     };
