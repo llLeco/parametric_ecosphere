@@ -9,6 +9,7 @@ import { RolesGuard } from '../../common/security/roles.guard';
   imports: [SmartNodeCommonModule, RegistryModule],
   controllers: [PolicyFactoryController],
   providers: [PolicyFactoryService, RolesGuard],
+  exports: [PolicyFactoryService],
 })
 export class PolicyFactoryModule {}
 

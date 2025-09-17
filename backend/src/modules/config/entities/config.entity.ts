@@ -8,7 +8,7 @@
  * NestJS schema decorators for validation.
  */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@hsuite/nestjs-swagger';
 import { IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, Min } from 'class-validator';
 import { Document } from 'mongoose';
 
@@ -123,6 +123,111 @@ export class Config {
     example: false
   })
   maintenanceMode: boolean;
+
+  /**
+   * @property policyRegistryTopicId
+   * @description The HCS topic ID for the Policy Registry
+   * 
+   * Stores the Hedera Consensus Service topic ID used for storing
+   * insurance policy information in the parametric insurance ecosystem.
+   * 
+   * @example '0.0.123456'
+   */
+  @Prop({ 
+    required: false, 
+    type: String
+  })
+  @ApiProperty({
+    type: String,
+    description: 'HCS topic ID for the Policy Registry',
+    example: '0.0.123456'
+  })
+  @IsOptional()
+  @IsString()
+  policyRegistryTopicId?: string;
+
+  /**
+   * @property rulesTopicId
+   * @description The HCS topic ID for the Rules
+   * 
+   * Stores the Hedera Consensus Service topic ID used for managing
+   * insurance rules and payout conditions in the parametric insurance ecosystem.
+   * 
+   * @example '0.0.123457'
+   */
+  @Prop({ 
+    required: false, 
+    type: String
+  })
+  @ApiProperty({
+    type: String,
+    description: 'HCS topic ID for the Rules',
+    example: '0.0.123457'
+  })
+  @IsOptional()
+  @IsString()
+  rulesTopicId?: string;
+
+  /**
+   * @property triggersTopicId
+   * @description The HCS topic ID for the Triggers
+   * 
+   * Stores the Hedera Consensus Service topic ID used for handling
+   * weather data and trigger events in the parametric insurance ecosystem.
+   * 
+   * @example '0.0.123458'
+   */
+  @Prop({ 
+    required: false, 
+    type: String
+  })
+  @ApiProperty({
+    type: String,
+    description: 'HCS topic ID for the Triggers',
+    example: '0.0.123458'
+  })
+  @IsOptional()
+  @IsString()
+  triggersTopicId?: string;
+
+  /**
+   * @property customMetadata
+   * @description Custom metadata for the parametric insurance ecosystem
+   * 
+   * Stores additional metadata specific to the parametric insurance ecosystem
+   * including ecosystem type, version, and topic references.
+   * 
+   * @example { ecosystem: 'parametric-insurance', version: '1.0.0', topics: {...} }
+   */
+  @Prop({ 
+    required: false, 
+    type: Object,
+    default: {}
+  })
+  @ApiProperty({
+    type: Object,
+    description: 'Custom metadata for the parametric insurance ecosystem',
+    example: {
+      ecosystem: 'parametric-insurance',
+      version: '1.0.0',
+      topics: {
+        policyRegistry: '0.0.123456',
+        rules: '0.0.123457',
+        triggers: '0.0.123458'
+      }
+    }
+  })
+  @IsOptional()
+  @IsObject()
+  customMetadata?: {
+    ecosystem: string;
+    version: string;
+    topics: {
+      policyRegistry: string;
+      rules: string;
+      triggers: string;
+    };
+  };
 
   /**
    * The timestamp when this configuration was created

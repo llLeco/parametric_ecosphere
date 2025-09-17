@@ -69,9 +69,9 @@ check_prerequisites() {
         print_success "Dependencies installed"
     fi
     
-    # Check if .env file exists
-    if [ ! -f "$PROJECT_ROOT/.env" ]; then
-        print_warning ".env file not found. Please ensure environment variables are configured."
+    # Check if .smart_app.env file exists
+    if [ ! -f "$PROJECT_ROOT/.smart_app.env" ]; then
+        print_warning ".smart_app.env file not found. Please ensure environment variables are configured."
     fi
     
     print_success "Prerequisites check completed"
@@ -188,4 +188,5 @@ main() {
 
 # Run main function
 main "$@"
+
 

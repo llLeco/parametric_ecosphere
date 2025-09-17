@@ -17,7 +17,7 @@ import {
   NotFoundException, 
   InternalServerErrorException 
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@hsuite/nestjs-swagger';
 import { ConfigService } from './config.service';
 import { Config } from './entities/config.entity';
 import { Error as MongooseError } from 'mongoose';

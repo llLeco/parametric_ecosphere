@@ -17,7 +17,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { LoggerHelper } from '@hsuite/helpers';
 import { SmartNodeSdkService } from '@hsuite/smartnode-sdk';
 import { SmartConfigService } from '@hsuite/smart-config';
-import { Client, PrivateKey, Transaction } from '@hashgraph/sdk';
+import { Client, PrivateKey, Transaction, AccountId } from '@hashgraph/sdk';
 import { ChainType, ILedger, SmartLedgersService } from '@hsuite/smart-ledgers';
 import { IHashgraph } from '@hsuite/hashgraph-types';
 
@@ -170,21 +170,59 @@ export class SmartNodeCommonService implements OnModuleInit {
     try {
       this.logger.debug(`Submitting message to topic ${topicId} with operator ${this.operator.accountId}`);
 
-      // Create signature manually using operator private key
-      const messageBytes = new TextEncoder().encode(JSON.stringify(message));
-      const signature = PrivateKey.fromString(this.operator.privateKey).sign(messageBytes);
-      this.logger.debug(`Message signature created for operator ${this.operator.accountId}`);
-
       // Generate transaction bytes using Smart Node SDK
       this.logger.debug(`Generating submit message transaction bytes...`);
+      this.logger.debug(`Message being sent: ${JSON.stringify(message, null, 2)}`);
+      
+      // Log each field individually to identify the problematic one
+      this.logger.debug(`Message field analysis:`);
+      this.logger.debug(`- type: ${typeof message.type} = ${message.type}`);
+      this.logger.debug(`- policyId: ${typeof message.policyId} = ${message.policyId}`);
+      this.logger.debug(`- status: ${typeof message.status} = ${message.status}`);
+      this.logger.debug(`- reason: ${typeof message.reason} = ${message.reason}`);
+      this.logger.debug(`- effectiveAt: ${typeof message.effectiveAt} = ${message.effectiveAt}`);
+      this.logger.debug(`- period: ${typeof message.period} = ${message.period}`);
+      this.logger.debug(`- amount: ${typeof message.amount} = ${message.amount}`);
+      this.logger.debug(`- dueAt: ${typeof message.dueAt} = ${message.dueAt}`);
+      this.logger.debug(`- paidAt: ${typeof message.paidAt} = ${message.paidAt}`);
+      this.logger.debug(`- txId: ${typeof message.txId} = ${message.txId}`);
+      this.logger.debug(`- ruleRef: ${typeof message.ruleRef} = ${JSON.stringify(message.ruleRef)}`);
+      this.logger.debug(`- ruleRef.topicId: ${typeof message.ruleRef?.topicId} = ${message.ruleRef?.topicId}`);
+      this.logger.debug(`- ruleRef.ts: ${typeof message.ruleRef?.ts} = ${message.ruleRef?.ts}`);
+      
+      this.logger.debug(`Calling Smart Node SDK submitMessage with topicId: ${topicId}`);
+
+      // Prepare message for submission
+      const messageString = JSON.stringify(message);
+      const messageBuffer = Buffer.from(messageString);
+      const privateKey = PrivateKey.fromStringED25519(this.operator.privateKey);
+      const signature = privateKey.sign(messageBuffer);
+
+      this.logger.debug(`Message payload: ${messageString}`);
+      this.logger.debug(`Signature length: ${signature.length}`);
+      
+      // Use required structure with signature and sender
       const submitMsgTxBytes = await this.smartNodeSdkService.sdk.hashgraph.hcs.submitMessage(topicId, {
-        message: JSON.stringify(message),
+        message: messageString,
         signature: signature,
-      } as IHashgraph.ILedger.IHCS.ITopic.IMessage.ISubmit);
+        sender: {
+          id: this.operator.accountId
+        }
+      } as any);
+      
+      this.logger.debug(`Transaction bytes generated successfully, length: ${submitMsgTxBytes.length}`);
       
       const submitMsgTx = Transaction.fromBytes(new Uint8Array(Buffer.from(submitMsgTxBytes)));
-      const txResponse = await submitMsgTx.execute(this.client);
+      this.logger.debug(`Transaction deserialized successfully`);
+      
+      const signTx = await submitMsgTx.sign(PrivateKey.fromStringED25519(this.operator.privateKey));
+      this.logger.debug(`Transaction signed successfully`);
+      
+      const txResponse = await signTx.execute(this.client);
+      this.logger.debug(`Transaction executed successfully`);
+      
       const record = await txResponse.getRecord(this.client);
+      this.logger.debug(`Transaction record retrieved successfully`);
       
       const transactionId = txResponse.transactionId.toString();
       const consensusTimestamp = record.consensusTimestamp.toString();
@@ -194,6 +232,8 @@ export class SmartNodeCommonService implements OnModuleInit {
       return { transactionId, consensusTimestamp };
     } catch (error) {
       this.logger.error(`Failed to submit message to topic ${topicId}: ${error.message}`);
+      this.logger.error(`Error stack: ${error.stack}`);
+      this.logger.error(`Error details: ${JSON.stringify(error, null, 2)}`);
       throw new Error(`Failed to submit message to topic: ${error.message}`);
     }
   }

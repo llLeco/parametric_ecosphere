@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@hsuite/nestjs-swagger';
+import { setupSwagger } from './common/swagger/swagger';
 import * as csurf from 'csurf';
 import helmet from 'helmet';
 import * as bodyParser from 'body-parser';
@@ -96,32 +96,8 @@ async function bootstrap() {
   // enabling compression server side...
   app.use(compression());
 
-  /**
-   * Configure Swagger documentation
-   * Sets up the OpenAPI documentation with application metadata,
-   * description, and version information
-   */
-  const config = new DocumentBuilder()
-  .setTitle('Hsuite - Smart App')
-  .setDescription(`Welcome to our Swagger Open API.</br>
-  If you are a developer, and you wish to interact with HSuite Smart Nodes from your own DAPP
-  please visit our <a href="https://github.com/HbarSuite/angular-sdk">Angular SDK</a>.</br>
-  Feel free to reach us out on our <a href="https://discord.gg/bHtu9AduNH">Discord</a>, we will be happy to onboard new developers.`)
-  .setVersion('2.0')
-  .addTag('HSuite', 'Enhancing the Hashgraph Network', {description: 'HSuite Documentation', url: 'https://docs.hsuite.finance'})
-  // .addBearerAuth({
-  //   type: 'http',
-  //   name: 'Authorization',
-  //   scheme: 'Bearer',
-  //   bearerFormat: 'JWT',
-  //   in: 'Header',
-  //   description: `JWT Authorization header using the Bearer scheme`,
-  // }, 'Bearer')
-  // .addSecurityRequirements('Bearer')
-  .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  // Configure Swagger documentation centrally
+  setupSwagger(app);
  
   // start listening on the port...
   await app.listen(process.env.PORT || 3000);

@@ -1,104 +1,92 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Parametric Insurance Flow</ion-title>
+    <ion-title>Parametric Flow Runner</ion-title>
     <ion-buttons slot="end">
-      <ion-button routerLink="/flow">Flow</ion-button>
       <ion-button routerLink="/settings">Settings</ion-button>
-      <ion-button routerLink="/api">Docs</ion-button>
-      <ion-button color="success" [disabled]="runningAll" (click)="runAll()">
-        <ion-spinner *ngIf="runningAll" name="dots"></ion-spinner>
-        <span *ngIf="!runningAll">Executar tudo</span>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <wallet-connection></wallet-connection>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-title size="small">Base URL: {{ ctx.snapshot.baseUrl }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button color="primary" [disabled]="runningStep==='ALL'" (click)="runAll()">
+        <ion-spinner *ngIf="runningStep==='ALL'" name="dots"></ion-spinner>
+        <span *ngIf="runningStep!=='ALL'">Run All</span>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar>
-    <ion-segment value="wizard">
-      <ion-segment-button value="wizard">Wizard</ion-segment-button>
-      <ion-segment-button value="timeline">Timeline</ion-segment-button>
-    </ion-segment>
-  </ion-toolbar>
-  <ion-toolbar>
-    <ion-chip>
-      <ion-label>baseUrl: {{ctx.snapshot.baseUrl}}</ion-label>
-    </ion-chip>
-    <ion-chip>
-      <ion-label>mockMode: {{ctx.snapshot.mockMode}}</ion-label>
-    </ion-chip>
-  </ion-toolbar>
-  <ion-toolbar>
-    <ion-chip *ngIf="ctx.snapshot.rule?.ruleRef?.ts"><ion-icon name="construct"></ion-icon><ion-label>rule.ts={{ctx.snapshot.rule?.ruleRef?.ts}}</ion-label></ion-chip>
-    <ion-chip *ngIf="ctx.snapshot.policy?.statusTopicId"><ion-icon name="book"></ion-icon><ion-label>statusTopicId={{ctx.snapshot.policy?.statusTopicId}}</ion-label></ion-chip>
-    <ion-chip *ngIf="ctx.snapshot.policy?.payoutsTopicId"><ion-icon name="cash"></ion-icon><ion-label>payoutsTopicId={{ctx.snapshot.policy?.payoutsTopicId}}</ion-label></ion-chip>
-    <ion-chip *ngIf="ctx.snapshot.policy?.statusInitTs"><ion-icon name="flash"></ion-icon><ion-label>statusInit.ts={{ctx.snapshot.policy?.statusInitTs}}</ion-label></ion-chip>
-    <ion-chip *ngIf="ctx.snapshot.trigger?.ts"><ion-icon name="rainy"></ion-icon><ion-label>trigger.ts={{ctx.snapshot.trigger?.ts}}</ion-label></ion-chip>
-    <ion-chip *ngIf="ctx.snapshot.payout?.ts"><ion-icon name="checkmark-circle"></ion-icon><ion-label>payout.ts={{ctx.snapshot.payout?.ts}}</ion-label></ion-chip>
+    <ion-title size="small">Timeline</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div class="container">
-    <app-step-card [title]="'Create Rule'"
-      method="POST"
-      path="/rules"
-      role="admin"
-      [payloadTemplate]="ruleTemplate"
-      [result]="results['Create Rule']"
-      (execute)="run('Create Rule', flow.createRule, $event)"
-    ></app-step-card>
+  <ion-list>
+    <ion-item *ngFor="let item of ctx.snapshot.timeline">
+      <ion-label>
+        <h3>{{ item.ts }} — {{ item.type }}</h3>
+        <p>{{ item.label }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
 
-    <app-step-card [title]="'Create Policy'"
-      method="POST"
-      path="/policy-factory"
-      role="admin"
-      [payloadTemplate]="policyTemplate"
-      [result]="results['Create Policy']"
-      (execute)="run('Create Policy', flow.createPolicy, $event)"
-    ></app-step-card>
+  <app-step-card
+    [title]="'Create Rule'"
+    [method]="'POST'"
+    [path]="'/rules'"
+    [role]="'admin'"
+    [payloadTemplate]="createRuleTemplate"
+    [running]="runningStep==='Create Rule'"
+    [result]="results['Create Rule']"
+    (execute)="onCreateRule($event)"
+  ></app-step-card>
 
-    <app-step-card [title]="'Premium to Pool'"
-      method="POST"
-      path="/pool-events/pool/premium"
-      role="admin"
-      [payloadTemplate]="premiumTemplate"
-      [result]="results['Premium to Pool']"
-      (execute)="run('Premium to Pool', flow.poolPremium, $event)"
-    ></app-step-card>
+  <app-step-card
+    [title]="'Create Policy'"
+    [method]="'POST'"
+    [path]="'/policy-factory'"
+    [role]="'admin'"
+    [payloadTemplate]="createPolicyTemplate"
+    [running]="runningStep==='Create Policy'"
+    [result]="results['Create Policy']"
+    (execute)="onCreatePolicy($event)"
+  ></app-step-card>
 
-    <app-step-card [title]="'Trigger Event'"
-      method="POST"
-      path="/triggers"
-      role="oracle"
-      [payloadTemplate]="triggerTemplate"
-      [result]="results['Trigger Event']"
-      (execute)="run('Trigger Event', flow.triggerEvent, $event)"
-    ></app-step-card>
+  <app-step-card
+    [title]="'Premium to Pool'"
+    [method]="'POST'"
+    [path]="'/pool-events/pool/premium'"
+    [role]="'admin'"
+    [payloadTemplate]="premiumToPoolTemplate"
+    [running]="runningStep==='Premium to Pool'"
+    [result]="results['Premium to Pool']"
+    (execute)="onPremiumToPool($event)"
+  ></app-step-card>
 
-    <app-step-card [title]="'Execute Payout'"
-      method="POST"
-      [path]="'/payouts/'+(ctx.snapshot.policy?.policyId || 'pol_001')+'/execute'"
-      role="admin"
-      [payloadTemplate]="payoutTemplate"
-      [result]="results['Execute Payout']"
-      (execute)="run('Execute Payout', flow.executePayout, $event)"
-    ></app-step-card>
+  <app-step-card
+    [title]="'Trigger Event'"
+    [method]="'POST'"
+    [path]="'/triggers'"
+    [role]="'oracle'"
+    [payloadTemplate]="triggerTemplate"
+    [running]="runningStep==='Trigger Event'"
+    [result]="results['Trigger Event']"
+    (execute)="onTriggerEvent($event)"
+  ></app-step-card>
 
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Timeline</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-list>
-          <ion-item *ngFor="let e of ctx.snapshot.timeline">
-            <ion-label>
-              <h3>{{e.type}} — {{e.label}}</h3>
-              <p>{{e.ts}}</p>
-            </ion-label>
-            <ion-badge *ngIf="e.meta?.ts">{{e.meta.ts}}</ion-badge>
-          </ion-item>
-        </ion-list>
-      </ion-card-content>
-    </ion-card>
-  </div>
+  <app-step-card
+    [title]="'Execute Payout'"
+    [method]="'POST'"
+    [path]="'/payouts/' + (ctx.snapshot.policy?.policyId || 'pol_001') + '/execute'"
+    [role]="'admin'"
+    [payloadTemplate]="payoutTemplate"
+    [running]="runningStep==='Execute Payout'"
+    [result]="results['Execute Payout']"
+    (execute)="onExecutePayout($event)"
+  ></app-step-card>
+
 </ion-content>
 
 

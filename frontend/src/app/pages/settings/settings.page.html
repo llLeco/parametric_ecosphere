@@ -1,44 +1,35 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Settings</ion-title>
-    <ion-buttons slot="end">
-      <ion-button routerLink="/flow">Flow</ion-button>
-      <ion-button routerLink="/api">Docs</ion-button>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/flow"></ion-back-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <ion-item>
-    <ion-label position="stacked">API Base URL</ion-label>
-    <ion-input [value]="ctx.snapshot.baseUrl" (ionInput)="ctx.set('baseUrl',$any($event.target).value)"></ion-input>
-  </ion-item>
-  <ion-item>
-    <ion-label>Mock Mode</ion-label>
-    <ion-toggle [checked]="ctx.snapshot.mockMode" (ionChange)="ctx.set('mockMode',$event.detail.checked)"></ion-toggle>
-  </ion-item>
+<ion-content>
+  <ion-list>
+    <ion-item>
+      <ion-label position="stacked">Backend Base URL</ion-label>
+      <ion-input [value]="ctx.snapshot.baseUrl" (ionInput)="updateBaseUrl($any($event.target).value)"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Ledger</ion-label>
+      <ion-note>testnet</ion-note>
+    </ion-item>
+
+    <ion-item lines="full">
+      <ion-label>Timeline</ion-label>
+      <ion-button fill="outline" color="medium" (click)="clearTimeline()">Clear</ion-button>
+    </ion-item>
+  </ion-list>
 
   <ion-list>
     <ion-list-header>Wallets</ion-list-header>
-    <ion-item>
-      <ion-label position="stacked">Admin</ion-label>
-      <ion-input [value]="ctx.snapshot.wallets.admin" (ionInput)="ctx.update({ wallets: ($any(Object).assign({}, ctx.snapshot.wallets, { admin: $any($event.target).value })) })"></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label position="stacked">Oracle</ion-label>
-      <ion-input [value]="ctx.snapshot.wallets.oracle" (ionInput)="ctx.update({ wallets: ($any(Object).assign({}, ctx.snapshot.wallets, { oracle: $any($event.target).value })) })"></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label position="stacked">Beneficiary</ion-label>
-      <ion-input [value]="ctx.snapshot.wallets.beneficiary" (ionInput)="ctx.update({ wallets: ($any(Object).assign({}, ctx.snapshot.wallets, { beneficiary: $any($event.target).value })) })"></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label position="stacked">Contributor</ion-label>
-      <ion-input [value]="ctx.snapshot.wallets.contributor" (ionInput)="ctx.update({ wallets: ($any(Object).assign({}, ctx.snapshot.wallets, { contributor: $any($event.target).value })) })"></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label position="stacked">Reinsurer</ion-label>
-      <ion-input [value]="ctx.snapshot.wallets.reinsurer" (ionInput)="ctx.update({ wallets: ($any(Object).assign({}, ctx.snapshot.wallets, { reinsurer: $any($event.target).value })) })"></ion-input>
+    <ion-item *ngFor="let role of roles">
+      <ion-label position="stacked">{{ role | titlecase }}</ion-label>
+      <ion-input [value]="ctx.snapshot.wallets[role]" (ionInput)="updateWallet(role, $any($event.target).value)"></ion-input>
     </ion-item>
   </ion-list>
 </ion-content>

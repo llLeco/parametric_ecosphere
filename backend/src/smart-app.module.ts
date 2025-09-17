@@ -37,6 +37,7 @@ import { SubscriptionsModule } from '@hsuite/subscriptions';
 import { ISubscription } from '@hsuite/subscriptions-types';
 
 
+import { ConfigsModule } from './modules/config/config.module';
 import { RegistryModule } from './modules/registry/registry.module';
 import { RulesModule } from './modules/rules/rules.module';
 import { TriggersModule } from './modules/triggers/triggers.module';
@@ -45,6 +46,7 @@ import { PoolEventsModule } from './modules/pool-events/pool-events.module';
 import { CessionModule } from './modules/cession/cession.module';
 import { PayoutsModule } from './modules/payouts/payouts.module';
 import { PolicyFactoryModule } from './modules/policy-factory/policy-factory.module';
+import { FlowModule } from './modules/flow/flow.module';
 
 /**
  * @class SmartAppModule
@@ -324,6 +326,7 @@ export class SmartAppModule {
         
  
     
+        ConfigsModule,
         RegistryModule,
         RulesModule,
         TriggersModule,
@@ -331,7 +334,8 @@ export class SmartAppModule {
         PoolEventsModule,
         CessionModule,
         PayoutsModule,
-        PolicyFactoryModule
+        PolicyFactoryModule,
+        FlowModule
       ],
       providers: []
     };

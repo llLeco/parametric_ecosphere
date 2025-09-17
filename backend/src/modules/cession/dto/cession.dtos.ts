@@ -1,10 +1,16 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+class RefDto {
+  @IsString() topicId: string;
+  @IsString() ts: string;
+}
 
 export class CessionRequestedDto {
   @IsString() policyId: string;
   @IsNumber() excessAmount: number;
-  @IsString() triggerRef: string;
-  @IsString() ruleRef: string;
+  @ValidateNested() @Type(() => RefDto) triggerRef: RefDto;
+  @ValidateNested() @Type(() => RefDto) ruleRef: RefDto;
   @IsNumber() lossCum: number;
   @IsNumber() retention: number;
 }
@@ -14,7 +20,7 @@ export class CessionFundedDto {
   @IsNumber() amount: number;
   @IsString() reinsurer: string;
   @IsString() txId: string;
-  @IsString() ruleRef: string;
+  @ValidateNested() @Type(() => RefDto) ruleRef: RefDto;
   @IsOptional() @IsString() cessionRef?: string;
 }
 

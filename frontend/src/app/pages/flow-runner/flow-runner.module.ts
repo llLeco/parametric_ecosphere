@@ -1,14 +1,13 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
-import { FlowRunnerRoutingModule } from './flow-runner-routing.module';
-// FlowRunnerPage is standalone; no declaration
-import { ComponentsModule } from '../../components/components.module';
+import { RouterModule, Routes } from '@angular/router';
+import { FlowRunnerPage } from './flow-runner.page';
+
+const routes: Routes = [
+  { path: '', component: FlowRunnerPage }
+];
 
 @NgModule({
-  imports: [CommonModule, IonicModule, FormsModule, FlowRunnerRoutingModule, ComponentsModule],
-  declarations: []
+  imports: [RouterModule.forChild(routes)],
 })
 export class FlowRunnerPageModule {}
 

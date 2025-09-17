@@ -31,7 +31,18 @@ export class PolicyFactoryService {
     const payoutsTopicId: string = (payoutsTopic as any).topicId || (payoutsTopic as any);
 
     // c) publish PolicyStatusInit
-    const initPayload = { type: 'PolicyStatusInit', policyId: dto.policyId, beneficiary: dto.beneficiary, validity: dto.validity, ruleRef: dto.ruleRef };
+    const initPayload = {
+      type: 'PolicyStatusInit',
+      policyId: dto.policyId,
+      status: 'active',
+      reason: 'Policy initialized',
+      effectiveAt: dto.validity.from,
+      period: 'monthly',
+      amount: dto.premium,
+      dueAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+      paidAt: '',
+      txId: `init_${Date.now()}`
+    };
     const initRes = (this.smartNode as any).submitMessageToTopic
       ? await (this.smartNode as any).submitMessageToTopic(statusTopicId, initPayload)
       : await (this.smartNode as any).publishMessage?.(statusTopicId, initPayload);

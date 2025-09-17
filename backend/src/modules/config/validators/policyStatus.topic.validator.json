@@ -3,8 +3,8 @@
   "actionsConditions": { "values": ["message"], "controller": "owner" },
   "updateConditions":  { "values": ["memo"],    "controller": "owner" },
   "tokenGates": {
-    "fungibles":    { "tokens": ["0.0.TOKEN_ADMIN"] },
-    "nonFungibles": { "tokens": ["0.0.NFT_ADMIN"] },
+    "fungibles":    { "tokens": [] },
+    "nonFungibles": { "tokens": [] },
     "timeRange":    { "from": 0, "to": 0 }
   },
   "customInterface": {
@@ -19,8 +19,7 @@
       "amount": "number",
       "dueAt": "string",
       "paidAt": "string",
-      "txId": "string",
-      "ruleRef": { "topicId": "string", "ts": "string" }
+      "txId": "string"
     }
   }
 }

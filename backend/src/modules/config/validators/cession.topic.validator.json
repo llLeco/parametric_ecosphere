@@ -3,8 +3,8 @@
   "actionsConditions": { "values": ["message"], "controller": "owner" },
   "updateConditions":  { "values": ["memo"],    "controller": "owner" },
   "tokenGates": {
-    "fungibles":    { "tokens": ["0.0.TOKEN_ADMIN", "0.0.TOKEN_REINSURER"] },
-    "nonFungibles": { "tokens": ["0.0.NFT_REINSURER"] },
+    "fungibles":    { "tokens": [] },
+    "nonFungibles": { "tokens": [] },
     "timeRange":    { "from": 0, "to": 0 }
   },
   "customInterface": {

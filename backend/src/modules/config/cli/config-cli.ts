@@ -250,7 +250,7 @@ export class ConfigCommand extends CommandRunner implements OnModuleInit {
    * @returns {boolean} True if force option is enabled, false otherwise
    */
   @Option({
-    flags: '-f, --force [force]',
+    flags: '-f, --force',
     description: 'Force initialization of parametric insurance ecosystem even if configuration already exists',
     defaultValue: false,
   })
@@ -316,6 +316,7 @@ export class ConfigCommand extends CommandRunner implements OnModuleInit {
     });
   }
 
+
   /**
    * Executes the config command when invoked from the command line
    * 
@@ -324,7 +325,7 @@ export class ConfigCommand extends CommandRunner implements OnModuleInit {
    * workflow of initializing the parametric insurance ecosystem:
    * 1. Checks for existing configurations
    * 2. Handles confirmation or force deletion if needed
-   * 3. Creates consensus validators for all 3 topics
+  3. Creates consensus validators for all 3 topics
    * 4. Creates 3 HCS topics: Policy Registry, Rules, and Triggers
    * 5. Creates and stores the configuration in the database
    * 
