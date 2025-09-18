@@ -4,14 +4,6 @@
     <ion-note>{{ method }} {{ path }} — role: {{ role }}</ion-note>
   </ion-card-header>
   <ion-card-content>
-    <ion-textarea
-      autoGrow="true"
-      [value]="editorValue"
-      (ionInput)="editorValue = $any($event.target).value"
-      placeholder="{ }"
-      rows="8"
-    ></ion-textarea>
-
     <div class="actions">
       <ion-button color="primary" [disabled]="running" (click)="onExecute()">
         <ion-spinner *ngIf="running" name="dots"></ion-spinner>

@@ -17,6 +17,13 @@ export interface FlowContext {
   };
   trigger?: { ts: string; topicId?: string };
   payout?: { ts: string };
+  finalPayout?: { ts: string };
+  cession?: {
+    requestTs?: string;
+    fundedTs?: string;
+    amount?: number;
+  };
+  poolDeposit?: { ts: string; amount?: number };
   timeline: Array<{ ts: string; type: string; label: string; meta?: any }>;
 }
 

@@ -21,25 +21,54 @@ export class FlowRunnerPage {
 
   get createRuleTemplate(): string {
     const body = {
-      ruleId: 'rule_rainfall_hex_001',
-      indexDef: { metric: 'rain_30d_mm', operator: '<', threshold: 50, windowDays: 21 },
-      payout: { amount: 100000, currencyTokenId: '0.0.STABLESIM' },
-      validity: { from: '2025-09-01T00:00:00Z', to: '2026-08-31T23:59:59Z' }
+      ruleId: `rule_temp_threshold_${Date.now()}`,
+      indexDef: {
+        metric: 'temperature',
+        operator: '>',
+        threshold: 35.0,
+        windowDays: 21,
+        unit: 'celsius'
+      },
+      payout: {
+        amount: 100000,
+        currencyTokenId: '0.0.STABLESIM'
+      },
+      validity: {
+        from: new Date().toISOString(),
+        to: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+      }
     };
     return JSON.stringify(body, null, 2);
   }
 
   get createPolicyTemplate(): string {
     const snapshot = this.ctx.snapshot;
+    const ruleTs = snapshot.rule?.ruleRef?.ts || `${Date.now()}`;
     const body = {
-      policyId: snapshot.policy?.policyId || 'pol_001',
+      policyId: `pol_${Date.now()}`,
       beneficiary: snapshot.wallets.beneficiary,
-      location: 'hex_lat19.9_lng43.9',
+      location: 'São Paulo, Brazil',
       sumInsured: 100000,
       premium: 10000,
       retention: 80000,
-      validity: { from: '2025-09-01', to: '2026-08-31' },
-      ruleRef: { topicId: '<TOPIC_RULES>', ts: snapshot.rule?.ruleRef?.ts || '<RULE_TS>' }
+      validity: {
+        from: new Date().toISOString().split('T')[0],
+        to: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      },
+      ruleRef: {
+        topicId: snapshot.rule?.ruleRef?.topicId || '0.0.123456',
+        ts: ruleTs
+      }
+    };
+    return JSON.stringify(body, null, 2);
+  }
+
+  get poolDepositTemplate(): string {
+    const body = {
+      poolId: 'pool_1',
+      amount: 500000,
+      currencyTokenId: '0.0.STABLESIM',
+      ref: `deposit_${Date.now()}`
     };
     return JSON.stringify(body, null, 2);
   }
@@ -48,23 +77,37 @@ export class FlowRunnerPage {
     const snapshot = this.ctx.snapshot;
     const body = {
       poolId: 'pool_1',
-      policyId: snapshot.policy?.policyId || 'pol_001',
-      from: snapshot.wallets.beneficiary,
+      policyId: snapshot.policy?.policyId || `pol_${Date.now()}`,
       amount: 10000,
-      currencyTokenId: '0.0.STABLESIM'
+      currencyTokenId: '0.0.STABLESIM',
+      ref: `premium_${Date.now()}`
     };
     return JSON.stringify(body, null, 2);
   }
 
   get triggerTemplate(): string {
     const snapshot = this.ctx.snapshot;
+    const ruleTs = snapshot.rule?.ruleRef?.ts || `${Date.now()}`;
     const body = {
-      policyId: snapshot.policy?.policyId || 'pol_001',
-      location: 'hex_lat19.9_lng43.9',
-      index: { rain_30d_mm: 12.4 },
-      window: { from: '2025-08-01', to: '2025-08-21' },
-      ruleRef: { topicId: '<TOPIC_RULES>', ts: snapshot.rule?.ruleRef?.ts || '<RULE_TS>' },
-      oracleSig: 'MOCK_SIGNATURE'
+      type: 'weather',
+      policyId: snapshot.policy?.policyId || `pol_${Date.now()}`,
+      location: 'São Paulo, Brazil',
+      index: {
+        parameter: 'temperature',
+        value: 36.5,
+        unit: 'celsius',
+        threshold: 35.0
+      },
+      window: {
+        from: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+        to: new Date().toISOString()
+      },
+      ruleRef: {
+        topicId: snapshot.rule?.ruleRef?.topicId || '0.0.123456',
+        ts: ruleTs
+      },
+      oracleSig: `oracle_signature_${Date.now()}`,
+      smartNodeSig: `smartnode_signature_${Date.now()}`
     };
     return JSON.stringify(body, null, 2);
   }
@@ -72,16 +115,75 @@ export class FlowRunnerPage {
   get payoutTemplate(): string {
     const snapshot = this.ctx.snapshot;
     const body = {
-      policyId: snapshot.policy?.policyId || 'pol_001',
       beneficiary: snapshot.wallets.beneficiary,
-      amount: 100000,
+      amount: 80000,
       source: 'POOL',
-      triggerRef: { topicId: '<TOPIC_TRIGGERS>', ts: snapshot.trigger?.ts || '<TRIGGER_TS>' },
-      ruleRef: { topicId: '<TOPIC_RULES>', ts: snapshot.rule?.ruleRef?.ts || '<RULE_TS>' },
-      statusRef: { topicId: snapshot.policy?.statusTopicId || '<STATUS_TOPIC_ID>', ts: snapshot.policy?.statusInitTs || '<STATUS_INIT_TS>' },
-      txId: '0.0.5173509@mock'
+      triggerRef: `trigger_${Date.now()}`,
+      ruleRef: `rule_${Date.now()}`,
+      sourceRef: `pool_${Date.now()}`,
+      statusRef: `status_${Date.now()}`,
+      txId: `tx_${Date.now()}`
     };
     return JSON.stringify(body, null, 2);
+  }
+
+  get cessionRequestTemplate(): string {
+    const snapshot = this.ctx.snapshot;
+    const body = {
+      policyId: snapshot.policy?.policyId || `pol_${Date.now()}`,
+      excessAmount: 20000,
+      triggerRef: `trigger_${Date.now()}`,
+      ruleRef: `rule_${Date.now()}`,
+      lossCum: 100000,
+      retention: 80000
+    };
+    return JSON.stringify(body, null, 2);
+  }
+
+  get cessionFundedTemplate(): string {
+    const snapshot = this.ctx.snapshot;
+    const body = {
+      policyId: snapshot.policy?.policyId || `pol_${Date.now()}`,
+      amount: 20000,
+      reinsurer: snapshot.wallets.reinsurer,
+      txId: `tx_${Date.now()}`,
+      ruleRef: `rule_${Date.now()}`,
+      cessionRef: `cession_${Date.now()}`
+    };
+    return JSON.stringify(body, null, 2);
+  }
+
+  get finalPayoutTemplate(): string {
+    const snapshot = this.ctx.snapshot;
+    const body = {
+      beneficiary: snapshot.wallets.beneficiary,
+      amount: 20000,
+      source: 'CESSION',
+      triggerRef: `trigger_${Date.now()}`,
+      ruleRef: `rule_${Date.now()}`,
+      sourceRef: `cession_${Date.now()}`,
+      statusRef: `status_${Date.now()}`,
+      txId: `tx_${Date.now()}`
+    };
+    return JSON.stringify(body, null, 2);
+  }
+
+  // GET operation templates (for policy operations only)
+  get getPolicyTemplate(): string {
+    const snapshot = this.ctx.snapshot;
+    const params = {
+      policyId: snapshot.policy?.policyId || 'pol_001'
+    };
+    return JSON.stringify(params, null, 2);
+  }
+
+  get listPoliciesTemplate(): string {
+    const snapshot = this.ctx.snapshot;
+    const params = {
+      beneficiary: snapshot.wallets.beneficiary || '',
+      location: 'hex_lat19.9_lng43.9'
+    };
+    return JSON.stringify(params, null, 2);
   }
 
   async runOne(name: string, exec: () => Promise<StepResult>) {
@@ -105,16 +207,47 @@ export class FlowRunnerPage {
     this.runOne('Create Policy', () => this.flow.createPolicy(payload));
   }
 
-  onPremiumToPool(payload?: any) {
-    this.runOne('Premium to Pool', () => this.flow.poolPremium(payload));
+  onPoolDeposit(payload?: any) {
+    this.runOne('Pool Deposit', () => this.flow.poolDeposit(payload));
   }
 
-  onTriggerEvent(payload?: any) {
-    this.runOne('Trigger Event', () => this.flow.triggerEvent(payload));
+  onPayPremium(payload?: any) {
+    this.runOne('Pay Premium', () => this.flow.poolPremium(payload));
   }
 
-  onExecutePayout(payload?: any) {
-    this.runOne('Execute Payout', () => this.flow.executePayout(payload));
+  onTriggerWeatherEvent(payload?: any) {
+    this.runOne('Trigger Weather Event', () => this.flow.triggerEvent(payload));
+  }
+
+  onExecutePoolPayout(payload?: any) {
+    this.runOne('Execute Pool Payout', () => this.flow.executePayout(payload));
+  }
+
+  onRequestCession(payload?: any) {
+    this.runOne('Request Cession', () => this.flow.cessionRequest(payload));
+  }
+
+  onFundCession(payload?: any) {
+    this.runOne('Fund Cession', () => this.flow.cessionFunded(payload));
+  }
+
+  onExecuteFinalPayout(payload?: any) {
+    this.runOne('Execute Final Payout', () => this.flow.executeFinalPayout(payload));
+  }
+
+  // GET operation handlers (policy operations only)
+  onGetPolicy(params?: any) {
+    const policyId = params?.policyId || this.ctx.snapshot.policy?.policyId || 'pol_001';
+    this.runOne('Get Policy', () => this.flow.getPolicy(policyId));
+  }
+
+  onListPolicies(params?: any) {
+    this.runOne('List Policies', () => this.flow.listPolicies());
+  }
+
+  onFindPoliciesByBeneficiary(params?: any) {
+    const beneficiary = params?.beneficiary || this.ctx.snapshot.wallets.beneficiary;
+    this.runOne('Find Policies by Beneficiary', () => this.flow.findPoliciesByBeneficiary(beneficiary));
   }
 }
 

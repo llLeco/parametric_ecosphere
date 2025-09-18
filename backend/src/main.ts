@@ -4,7 +4,7 @@ import * as csurf from 'csurf';
 import helmet from 'helmet';
 import * as bodyParser from 'body-parser';
 const cookieParser = require('cookie-parser');
-import * as compression from 'compression';
+const compression = require('compression');
 import { CustomThrottlerGuard } from '@hsuite/throttler';
 import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-host';
 import { SmartAppService } from './smart-app.service';

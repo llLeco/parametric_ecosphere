@@ -7,7 +7,7 @@
  */
 
 import { Module } from '@nestjs/common';
-import { ConfigCommand } from './cli/config-cli';
+import { ConfigCommand } from './config-cli';
 import { ConfigController } from './config.controller';
 import { ConfigService as AppConfigService } from './config.service';
 import { MongooseModule } from '@nestjs/mongoose';

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { FlowCommand } from './cli/flow-cli';
+import { FlowCommand } from './flow-cli';
 import { PolicyFactoryModule } from '../policy-factory/policy-factory.module';
 import { PoolEventsModule } from '../pool-events/pool-events.module';
 import { TriggersModule } from '../triggers/triggers.module';

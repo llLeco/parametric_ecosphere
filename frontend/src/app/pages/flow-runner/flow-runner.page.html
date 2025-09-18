@@ -18,22 +18,51 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar>
-    <ion-title size="small">Timeline</ion-title>
+    <ion-title size="small">Complete Parametric Insurance Flow</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
-    <ion-item *ngFor="let item of ctx.snapshot.timeline">
-      <ion-label>
-        <h3>{{ item.ts }} — {{ item.type }}</h3>
-        <p>{{ item.label }}</p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
+  <!-- Flow Summary Card -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>🎯 Flow Overview</ion-card-title>
+      <ion-card-subtitle>São Paulo Agricultural Temperature Insurance</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <p><strong>Scenario:</strong> Temperature > 35°C triggers payout</p>
+      <p><strong>Coverage:</strong> 100,000 tokens total</p>
+      <p><strong>Premium:</strong> 10,000 tokens</p>
+      <p><strong>Pool Coverage:</strong> 80,000 tokens (stop-loss)</p>
+      <p><strong>Reinsurer Coverage:</strong> 20,000 tokens (excess)</p>
+    </ion-card-content>
+  </ion-card>
 
+  <!-- Timeline -->
+  <ion-card *ngIf="ctx.snapshot.timeline.length > 0">
+    <ion-card-header>
+      <ion-card-title>📅 Execution Timeline</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let item of ctx.snapshot.timeline">
+          <ion-label>
+            <h3>{{ item.ts }} — {{ item.type }}</h3>
+            <p>{{ item.label }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Flow Steps Section -->
+  <ion-item-divider>
+    <ion-label><strong>🚀 Parametric Insurance Flow Steps</strong></ion-label>
+  </ion-item-divider>
+
+  <!-- Step 1: Create Rule -->
   <app-step-card
-    [title]="'Create Rule'"
+    [title]="'1. Create Rule'"
     [method]="'POST'"
     [path]="'/rules'"
     [role]="'admin'"
@@ -43,8 +72,9 @@
     (execute)="onCreateRule($event)"
   ></app-step-card>
 
+  <!-- Step 2: Create Policy -->
   <app-step-card
-    [title]="'Create Policy'"
+    [title]="'2. Create Policy'"
     [method]="'POST'"
     [path]="'/policy-factory'"
     [role]="'admin'"
@@ -54,37 +84,126 @@
     (execute)="onCreatePolicy($event)"
   ></app-step-card>
 
+  <!-- Step 3: Pool Deposit (Contributor) -->
   <app-step-card
-    [title]="'Premium to Pool'"
+    [title]="'3. Pool Deposit (Contributor)'"
     [method]="'POST'"
-    [path]="'/pool-events/pool/premium'"
-    [role]="'admin'"
-    [payloadTemplate]="premiumToPoolTemplate"
-    [running]="runningStep==='Premium to Pool'"
-    [result]="results['Premium to Pool']"
-    (execute)="onPremiumToPool($event)"
+    [path]="'/pool-events/pool/deposit'"
+    [role]="'contributor'"
+    [payloadTemplate]="poolDepositTemplate"
+    [running]="runningStep==='Pool Deposit'"
+    [result]="results['Pool Deposit']"
+    (execute)="onPoolDeposit($event)"
   ></app-step-card>
 
+  <!-- Step 4: Pay Premium (Farmer) -->
   <app-step-card
-    [title]="'Trigger Event'"
+    [title]="'4. Pay Premium (Farmer)'"
+    [method]="'POST'"
+    [path]="'/pool-events/pool/premium'"
+    [role]="'beneficiary'"
+    [payloadTemplate]="premiumToPoolTemplate"
+    [running]="runningStep==='Pay Premium'"
+    [result]="results['Pay Premium']"
+    (execute)="onPayPremium($event)"
+  ></app-step-card>
+
+  <!-- Step 5: Trigger Weather Event (Oracle) -->
+  <app-step-card
+    [title]="'5. Trigger Weather Event (Oracle)'"
     [method]="'POST'"
     [path]="'/triggers'"
     [role]="'oracle'"
     [payloadTemplate]="triggerTemplate"
-    [running]="runningStep==='Trigger Event'"
-    [result]="results['Trigger Event']"
-    (execute)="onTriggerEvent($event)"
+    [running]="runningStep==='Trigger Weather Event'"
+    [result]="results['Trigger Weather Event']"
+    (execute)="onTriggerWeatherEvent($event)"
   ></app-step-card>
 
+  <!-- Step 6: Execute Pool Payout -->
   <app-step-card
-    [title]="'Execute Payout'"
+    [title]="'6. Execute Pool Payout (80k stop-loss)'"
     [method]="'POST'"
     [path]="'/payouts/' + (ctx.snapshot.policy?.policyId || 'pol_001') + '/execute'"
     [role]="'admin'"
     [payloadTemplate]="payoutTemplate"
-    [running]="runningStep==='Execute Payout'"
-    [result]="results['Execute Payout']"
-    (execute)="onExecutePayout($event)"
+    [running]="runningStep==='Execute Pool Payout'"
+    [result]="results['Execute Pool Payout']"
+    (execute)="onExecutePoolPayout($event)"
+  ></app-step-card>
+
+  <!-- Step 7: Request Cession -->
+  <app-step-card
+    [title]="'7. Request Cession (20k excess)'"
+    [method]="'POST'"
+    [path]="'/cession/requested'"
+    [role]="'admin'"
+    [payloadTemplate]="cessionRequestTemplate"
+    [running]="runningStep==='Request Cession'"
+    [result]="results['Request Cession']"
+    (execute)="onRequestCession($event)"
+  ></app-step-card>
+
+  <!-- Step 8: Fund Cession (Reinsurer) -->
+  <app-step-card
+    [title]="'8. Fund Cession (Reinsurer)'"
+    [method]="'POST'"
+    [path]="'/cession/funded'"
+    [role]="'reinsurer'"
+    [payloadTemplate]="cessionFundedTemplate"
+    [running]="runningStep==='Fund Cession'"
+    [result]="results['Fund Cession']"
+    (execute)="onFundCession($event)"
+  ></app-step-card>
+
+  <!-- Step 9: Execute Final Payout -->
+  <app-step-card
+    [title]="'9. Execute Final Payout (20k from cession)'"
+    [method]="'POST'"
+    [path]="'/payouts/' + (ctx.snapshot.policy?.policyId || 'pol_001') + '/execute'"
+    [role]="'admin'"
+    [payloadTemplate]="finalPayoutTemplate"
+    [running]="runningStep==='Execute Final Payout'"
+    [result]="results['Execute Final Payout']"
+    (execute)="onExecuteFinalPayout($event)"
+  ></app-step-card>
+
+  <!-- GET Operations Section (Policy Registry Only) -->
+  <ion-item-divider>
+    <ion-label><strong>GET Operations - Policy Registry</strong></ion-label>
+  </ion-item-divider>
+
+  <app-step-card
+    [title]="'Get Policy'"
+    [method]="'GET'"
+    [path]="'/registry/policies/' + (ctx.snapshot.policy?.policyId || 'pol_001')"
+    [role]="'admin'"
+    [payloadTemplate]="getPolicyTemplate"
+    [running]="runningStep==='Get Policy'"
+    [result]="results['Get Policy']"
+    (execute)="onGetPolicy($event)"
+  ></app-step-card>
+
+  <app-step-card
+    [title]="'List Policies'"
+    [method]="'GET'"
+    [path]="'/registry/policies'"
+    [role]="'admin'"
+    [payloadTemplate]="listPoliciesTemplate"
+    [running]="runningStep==='List Policies'"
+    [result]="results['List Policies']"
+    (execute)="onListPolicies($event)"
+  ></app-step-card>
+
+  <app-step-card
+    [title]="'Find Policies by Beneficiary'"
+    [method]="'GET'"
+    [path]="'/registry/policies?beneficiary=' + (ctx.snapshot.wallets.beneficiary || '')"
+    [role]="'admin'"
+    [payloadTemplate]="listPoliciesTemplate"
+    [running]="runningStep==='Find Policies by Beneficiary'"
+    [result]="results['Find Policies by Beneficiary']"
+    (execute)="onFindPoliciesByBeneficiary($event)"
   ></app-step-card>
 
 </ion-content>

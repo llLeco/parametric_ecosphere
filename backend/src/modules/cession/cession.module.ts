@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
-import { CessionController } from './controller/cession.controller';
-import { CessionService } from './service/cession.service';
-import { CessionProcessor } from './consumer/cession.processor';
-import { CessionModelModule } from './model/cession.model.module';
+import { CessionController } from './cession.controller';
+import { CessionService } from './cession.service';
+import { CessionProcessor } from './cession.processor';
+import { CessionModelModule } from './cession.model.module';
 import { INS_CESSION_QUEUE } from '../../common/bull/queues';
 import { SmartNodeCommonModule } from '../smartnode-common.module';
-import { RolesGuard } from '../../common/security/roles.guard';
 import { ConfigTopicsService } from '../../common/config/config-topics.service';
 import { ConfigModelModule } from '../../common/config/config-model.module';
 
@@ -18,7 +17,7 @@ import { ConfigModelModule } from '../../common/config/config-model.module';
     ConfigModelModule,
   ],
   controllers: [CessionController],
-  providers: [CessionService, CessionProcessor, RolesGuard, ConfigTopicsService],
+  providers: [CessionService, CessionProcessor, ConfigTopicsService],
   exports: [CessionService],
 })
 export class CessionModule {}

@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
-import { PayoutsController } from './controller/payouts.controller';
-import { PayoutsService } from './service/payouts.service';
-import { PayoutsProcessor } from './consumer/payouts.processor';
-import { PayoutsModelModule } from './model/payouts.model.module';
+import { PayoutsController } from './payouts.controller';
+import { PayoutsService } from './payouts.service';
+import { PayoutsProcessor } from './payouts.processor';
+import { PayoutsModelModule } from './payouts.model.module';
 import { INS_PAYOUTS_QUEUE } from '../../common/bull/queues';
 import { SmartNodeCommonModule } from '../smartnode-common.module';
-import { RolesGuard } from '../../common/security/roles.guard';
 
 @Module({
   imports: [
@@ -15,7 +14,7 @@ import { RolesGuard } from '../../common/security/roles.guard';
     SmartNodeCommonModule,
   ],
   controllers: [PayoutsController],
-  providers: [PayoutsService, PayoutsProcessor, RolesGuard],
+  providers: [PayoutsService, PayoutsProcessor],
   exports: [PayoutsService],
 })
 export class PayoutsModule {}
